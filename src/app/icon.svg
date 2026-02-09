@@ -1,0 +1,6 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rounded rectangle background - Circassian Green -->
+  <rect width="32" height="32" rx="4" fill="#00A651"/>
+  <!-- "in" text -->
+  <text x="16" y="23" text-anchor="middle" fill="white" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="bold">in</text>
+</svg>
