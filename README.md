@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# XabzedIn
 
-## Getting Started
+Diasporada yaşayan insanlarımızın birbirini bulmasını, tanışmasını ve iş hayatında birbirine destek olmasını kolaylaştırmak amacıyla gönüllü olarak geliştirilen açık kaynaklı bir platformdur. Herhangi bir ticari amacı yoktur.
 
-First, run the development server:
+**Canlı:** [xabzedin.com](https://xabzedin.com)
+
+## Teknolojiler
+
+- **Frontend:** Next.js 16 (App Router, Turbopack)
+- **Backend:** Supabase (Auth, PostgreSQL, Storage, RPC)
+- **UI:** shadcn/ui, Tailwind CSS
+- **Deploy:** Vercel
+
+## Kurulum
+
+### 1. Projeyi klonlayın
+
+```bash
+git clone https://github.com/cerkeseth/XabzedIn.git
+cd XabzedIn
+npm install
+```
+
+### 2. Supabase projesini oluşturun
+
+1. [supabase.com](https://supabase.com) üzerinde yeni bir proje oluşturun
+2. SQL Editor'ı açın
+3. `supabase/schema.sql` dosyasının tamamını kopyalayıp çalıştırın
+
+Bu tek dosya tüm tabloları, fonksiyonları, RLS politikalarını ve başlangıç referans kodlarını oluşturacaktır.
+
+### 3. Ortam değişkenlerini ayarlayın
+
+`.env.local` dosyası oluşturun:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Bu değerleri Supabase Dashboard > Settings > API bölümünden alabilirsiniz.
+
+### 4. Geliştirme sunucusunu başlatın
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000) adresinden erişebilirsiniz.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Veritabanı Yapısı
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Tablo | Açıklama |
+|-------|----------|
+| `profiles` | Kullanıcı profilleri (auth.users ile bağlantılı) |
+| `experiences` | İş deneyimleri |
+| `education` | Eğitim bilgileri |
+| `companies` | Şirket bilgileri |
+| `jobs` | İş ilanları (süre, konum, çalışma şekli) |
+| `applications` | İş başvuruları |
+| `referral_codes` | Referans kodları (davetiye sistemi) |
 
-## Learn More
+## Referans Sistemi
 
-To learn more about Next.js, take a look at the following resources:
+Platform davet ile çalışır. Yeni kullanıcılar mevcut bir kullanıcının oluşturduğu referans kodu ile kayıt olur. Her kullanıcının belirli bir hakkı vardır; hak bittiğinde admin tarafından yenisi verilebilir.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Admin fonksiyonları** (Supabase SQL Editor'dan çalıştırılır):
+```sql
+-- Tek kullanıcıya hak ver
+SELECT grant_referral_right('kullanici-uuid', 1);
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+-- Tüm kullanıcılara hak ver
+SELECT grant_referral_right_to_all(1);
 
-## Deploy on Vercel
+-- Mevcut kullanılmamış kodları listele
+SELECT code FROM referral_codes WHERE is_used = false;
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Katkıda Bulunma
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Proje gönüllü olarak geliştirilmektedir. Katkıda bulunmak isterseniz:
+
+1. Fork edin
+2. Branch oluşturun (`git checkout -b ozellik/yeni-ozellik`)
+3. Değişikliklerinizi commit edin
+4. Pull Request açın
+
+Hatalar ve öneriler için: **iletisim@xabzedin.com**
+
+## Lisans
+
+Bu proje topluluk yararına açık kaynak olarak geliştirilmektedir.
+
+Yapımcı: **Mertcan DAR**
