@@ -43,19 +43,35 @@ export default async function ReferralsPage() {
     }
 
     // Get who this user referred
-    const { data: referredUsers } = await supabase
+    // Get used codes by this user
+    const { data: usedByData } = await supabase
         .from('referral_codes')
-        .select(`
-            used_by_id,
-            used_at,
-            profiles:used_by_id (
-                full_name,
-                email,
-                created_at
-            )
-        `)
+        .select('used_by_id, used_at')
         .eq('owner_id', user.id)
         .eq('is_used', true)
+
+    // Fetch profiles for referred users
+    let referredUsers: { used_by_id: string; used_at: string; full_name: string | null; email: string; created_at: string }[] = []
+    if (usedByData && usedByData.length > 0) {
+        const userIds = usedByData.map(u => u.used_by_id).filter(Boolean)
+        if (userIds.length > 0) {
+            const { data: profiles } = await supabase
+                .from('profiles')
+                .select('id, full_name, email, created_at')
+                .in('id', userIds)
+
+            referredUsers = usedByData.map(u => {
+                const p = profiles?.find(p => p.id === u.used_by_id)
+                return {
+                    used_by_id: u.used_by_id,
+                    used_at: u.used_at,
+                    full_name: p?.full_name ?? null,
+                    email: p?.email ?? '',
+                    created_at: p?.created_at ?? '',
+                }
+            })
+        }
+    }
 
     const hasRights = (profile?.referral_code_rights ?? 0) > 0
 
@@ -135,7 +151,6 @@ export default async function ReferralsPage() {
                     {referredUsers && referredUsers.length > 0 ? (
                         <div className="space-y-3">
                             {referredUsers.map((item) => {
-                                const prof = item.profiles as unknown as { full_name: string | null; email: string; created_at: string } | null
                                 return (
                                     <div key={item.used_by_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                         <div className="flex items-center gap-3">
@@ -145,8 +160,8 @@ export default async function ReferralsPage() {
                                                 </svg>
                                             </div>
                                             <div>
-                                                <p className="font-medium">{prof?.full_name || 'İsimsiz Kullanıcı'}</p>
-                                                <p className="text-sm text-gray-500">{prof?.email}</p>
+                                                <p className="font-medium">{item.full_name || 'İsimsiz Kullanıcı'}</p>
+                                                <p className="text-sm text-gray-500">{item.email}</p>
                                             </div>
                                         </div>
                                         <span className="text-sm text-gray-500">
