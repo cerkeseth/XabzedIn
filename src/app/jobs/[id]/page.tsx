@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import ApplyButton from '@/components/apply-button'
 import HeaderWrapper from '@/components/header-wrapper'
+import Footer from '@/components/footer'
 
 export default async function JobDetailPage({
     params,
@@ -75,7 +76,7 @@ export default async function JobDetailPage({
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 flex flex-col">
             <HeaderWrapper />
 
             <main className="max-w-4xl mx-auto px-4 py-8">
@@ -263,6 +264,8 @@ export default async function JobDetailPage({
                     </div>
                 </div>
             </main>
+
+            <Footer />
         </div>
     )
 }

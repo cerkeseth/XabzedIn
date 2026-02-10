@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import HeaderWrapper from '@/components/header-wrapper'
+import Footer from '@/components/footer'
 
 export default async function JobsPage({
     searchParams,
@@ -36,7 +37,7 @@ export default async function JobsPage({
     const { data: jobs } = await query
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 flex flex-col">
             <HeaderWrapper />
 
             <main className="max-w-6xl mx-auto px-4 py-8">
@@ -112,6 +113,8 @@ export default async function JobsPage({
                     </div>
                 )}
             </main>
+
+            <Footer />
         </div>
     )
 }

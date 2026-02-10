@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
+import HeaderWrapper from '@/components/header-wrapper'
+import Footer from '@/components/footer'
 
 export default async function ProfilePage({
     params,
@@ -41,20 +43,10 @@ export default async function ProfilePage({
         .order('start_date', { ascending: false })
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Header */}
-            <header className="bg-white border-b border-gray-200">
-                <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <Link href="/" className="text-xl font-bold text-gray-900">
-                        XabzedIn
-                    </Link>
-                    <Link href="/jobs">
-                        <Button variant="ghost">İş İlanları</Button>
-                    </Link>
-                </div>
-            </header>
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+            <HeaderWrapper />
 
-            <main className="max-w-4xl mx-auto px-4 py-8">
+            <main className="max-w-4xl mx-auto px-4 py-8 flex-1 w-full">
                 <Card>
                     <CardHeader>
                         <div className="flex items-start gap-6">
@@ -158,6 +150,8 @@ export default async function ProfilePage({
                     </CardContent>
                 </Card>
             </main>
+
+            <Footer />
         </div>
     )
 }
