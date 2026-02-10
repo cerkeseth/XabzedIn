@@ -79,7 +79,7 @@ export default async function JobDetailPage({
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <HeaderWrapper />
 
-            <main className="max-w-4xl mx-auto px-4 py-8">
+            <main className="max-w-4xl mx-auto px-4 py-8 flex-1 w-full">
                 <div className="mb-6">
                     <Link href="/jobs">
                         <Button variant="ghost" size="sm">← Tüm İlanlar</Button>

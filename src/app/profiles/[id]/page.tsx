@@ -44,7 +44,7 @@ export default async function ProfilePage({
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <HeaderWrapper />
 
-            <main className="max-w-4xl mx-auto px-4 py-8">
+            <main className="max-w-4xl mx-auto px-4 py-8 flex-1 w-full">
                 {/* Profile Header Card */}
                 <Card className="mb-6">
                     <CardHeader>

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import GenerateReferralButton from '@/components/generate-referral-button'
 
 export default async function ReferralsPage() {
     const supabase = await createClient()
@@ -11,19 +12,24 @@ export default async function ReferralsPage() {
         redirect('/auth')
     }
 
-    // Get user's referral code
-    const { data: myCode } = await supabase
+    // Get user's profile (for referral_code_rights)
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('referred_by, referral_code_rights')
+        .eq('id', user.id)
+        .single()
+
+    // Get user's referral codes (could have multiple over time)
+    const { data: myCodes } = await supabase
         .from('referral_codes')
         .select('code, is_used, used_at')
         .eq('owner_id', user.id)
-        .single()
+        .order('created_at', { ascending: false })
 
-    // Get who referred this user
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('referred_by')
-        .eq('id', user.id)
-        .single()
+    // Active (unused) code
+    const activeCode = myCodes?.find(c => !c.is_used)
+    // Used codes
+    const usedCodes = myCodes?.filter(c => c.is_used) || []
 
     // Get referrer's info if exists
     let referrerName = null
@@ -36,7 +42,7 @@ export default async function ReferralsPage() {
         referrerName = referrer?.full_name || referrer?.email
     }
 
-    // Get who this user referred (people who used their code)
+    // Get who this user referred
     const { data: referredUsers } = await supabase
         .from('referral_codes')
         .select(`
@@ -50,6 +56,8 @@ export default async function ReferralsPage() {
         `)
         .eq('owner_id', user.id)
         .eq('is_used', true)
+
+    const hasRights = (profile?.referral_code_rights ?? 0) > 0
 
     return (
         <div>
@@ -65,31 +73,27 @@ export default async function ReferralsPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {myCode ? (
+                        {activeCode ? (
                             <div className="space-y-3">
                                 <div className="flex items-center gap-3">
                                     <code className="text-2xl font-mono font-bold tracking-wider bg-gray-100 px-4 py-2 rounded-lg">
-                                        {myCode.code}
+                                        {activeCode.code}
                                     </code>
-                                    {myCode.is_used ? (
-                                        <Badge variant="secondary">Kullanıldı</Badge>
-                                    ) : (
-                                        <Badge variant="default" className="bg-green-500">Aktif</Badge>
-                                    )}
+                                    <Badge variant="default" className="bg-green-500">Aktif</Badge>
                                 </div>
-                                {myCode.is_used && myCode.used_at && (
-                                    <p className="text-sm text-gray-500">
-                                        Kullanım tarihi: {new Date(myCode.used_at).toLocaleDateString('tr-TR')}
-                                    </p>
-                                )}
-                                {!myCode.is_used && (
-                                    <p className="text-sm text-gray-500">
-                                        Bu kod henüz kullanılmadı. Bir arkadaşınızla paylaşın!
+                                <p className="text-sm text-gray-500">
+                                    Bu kod henüz kullanılmadı. Bir arkadaşınızla paylaşın!
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                <GenerateReferralButton hasRights={hasRights} />
+                                {hasRights && (
+                                    <p className="text-xs text-gray-400">
+                                        Kalan hak: {profile?.referral_code_rights ?? 0}
                                     </p>
                                 )}
                             </div>
-                        ) : (
-                            <p className="text-gray-500">Referans kodunuz henüz oluşturulmamış.</p>
                         )}
                     </CardContent>
                 </Card>
@@ -131,7 +135,7 @@ export default async function ReferralsPage() {
                     {referredUsers && referredUsers.length > 0 ? (
                         <div className="space-y-3">
                             {referredUsers.map((item) => {
-                                const profile = item.profiles as unknown as { full_name: string | null; email: string; created_at: string } | null
+                                const prof = item.profiles as unknown as { full_name: string | null; email: string; created_at: string } | null
                                 return (
                                     <div key={item.used_by_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                         <div className="flex items-center gap-3">
@@ -141,8 +145,8 @@ export default async function ReferralsPage() {
                                                 </svg>
                                             </div>
                                             <div>
-                                                <p className="font-medium">{profile?.full_name || 'İsimsiz Kullanıcı'}</p>
-                                                <p className="text-sm text-gray-500">{profile?.email}</p>
+                                                <p className="font-medium">{prof?.full_name || 'İsimsiz Kullanıcı'}</p>
+                                                <p className="text-sm text-gray-500">{prof?.email}</p>
                                             </div>
                                         </div>
                                         <span className="text-sm text-gray-500">
@@ -163,6 +167,32 @@ export default async function ReferralsPage() {
                     )}
                 </CardContent>
             </Card>
+
+            {/* Used Codes History */}
+            {usedCodes.length > 0 && (
+                <Card className="mt-6">
+                    <CardHeader>
+                        <CardTitle className="text-lg">Kullanılmış Kodlarım</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-2">
+                            {usedCodes.map((code) => (
+                                <div key={code.code} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                    <code className="font-mono text-sm">{code.code}</code>
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant="secondary">Kullanıldı</Badge>
+                                        {code.used_at && (
+                                            <span className="text-xs text-gray-400">
+                                                {new Date(code.used_at).toLocaleDateString('tr-TR')}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
         </div>
     )
 }
