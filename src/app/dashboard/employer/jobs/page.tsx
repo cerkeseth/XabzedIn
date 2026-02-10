@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import RepublishButton from '@/components/republish-button'
+import DeleteJobButton from '@/components/delete-job-button'
 
 export default async function EmployerJobsPage() {
     const supabase = await createClient()
@@ -114,6 +115,7 @@ export default async function EmployerJobsPage() {
                                         {canRepublish && (
                                             <RepublishButton jobId={job.id} />
                                         )}
+                                        <DeleteJobButton jobId={job.id} />
                                     </div>
                                 </CardContent>
                             </Card>

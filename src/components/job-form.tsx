@@ -28,8 +28,9 @@ export default function JobForm({ job, companyId, onSuccess }: JobFormProps) {
         contact_name: job?.contact_name || '',
         contact_phone: job?.contact_phone || '',
         contact_email: job?.contact_email || '',
-        duration_days: '30', // Default 30 days
+        duration_days: '30',
     })
+    const [expiresAt, setExpiresAt] = useState(job?.expires_at ? job.expires_at.split('T')[0] : '')
     const supabase = createClient()
     const router = useRouter()
 
@@ -61,6 +62,7 @@ export default function JobForm({ job, companyId, onSuccess }: JobFormProps) {
                         contact_name: formData.contact_name || null,
                         contact_phone: formData.contact_phone || null,
                         contact_email: formData.contact_email || null,
+                        expires_at: expiresAt ? new Date(expiresAt).toISOString() : null,
                         updated_at: new Date().toISOString(),
                     })
                     .eq('id', job.id)
@@ -155,7 +157,7 @@ export default function JobForm({ job, companyId, onSuccess }: JobFormProps) {
                         </div>
                     </div>
 
-                    {!job && (
+                    {!job ? (
                         <div className="space-y-2">
                             <Label htmlFor="duration_days">İlan Süresi</Label>
                             <Select
@@ -174,6 +176,25 @@ export default function JobForm({ job, companyId, onSuccess }: JobFormProps) {
                                     <SelectItem value="90">90 Gün</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            <Label htmlFor="expires_at">İlan Bitiş Tarihi</Label>
+                            <Input
+                                id="expires_at"
+                                type="date"
+                                value={expiresAt}
+                                onChange={(e) => setExpiresAt(e.target.value)}
+                                disabled={isLoading}
+                            />
+                            {expiresAt && (
+                                <p className="text-xs text-gray-500">
+                                    {new Date(expiresAt) > new Date()
+                                        ? `${Math.ceil((new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} gün kaldı`
+                                        : 'Süresi dolmuş'
+                                    }
+                                </p>
+                            )}
                         </div>
                     )}
 

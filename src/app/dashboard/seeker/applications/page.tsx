@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import WithdrawApplicationButton from '@/components/withdraw-application-button'
 
 export default async function SeekerApplicationsPage() {
     const supabase = await createClient()
@@ -108,6 +109,7 @@ export default async function SeekerApplicationsPage() {
                                         <Link href={`/jobs/${app.job_id}`}>
                                             <Button variant="outline" size="sm">İlanı Görüntüle</Button>
                                         </Link>
+                                        <WithdrawApplicationButton applicationId={app.id} />
                                     </div>
                                 </CardContent>
                             </Card>

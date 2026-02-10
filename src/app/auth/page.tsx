@@ -204,7 +204,7 @@ export default function AuthPage() {
                         <Logo size="md" />
                     </Link>
                     <CardDescription>
-                        Çerkes toplumu için kariyer platformu
+                        Diasporada dayanışma, iş hayatında güç
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
